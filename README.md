@@ -48,7 +48,6 @@ A React-based web application for converting and managing time across different 
     npm start
     ```
 
-    Open `http://localhost:5173` in your browser to see the application.
 
 ## Usage
 
