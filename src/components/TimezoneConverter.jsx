@@ -172,12 +172,12 @@ const TimezoneConverter = () => {
         return (
             <div className={'zone-container'} id={isDark && 'dark-zone-container'} ref={setNodeRef} style={style} >
                 <div className='zone-upper-row'>
-                    <div className='drag-handle' {...listeners} {...attributes}><RiDraggable /><RiDraggable /><RiDraggable /><RiDraggable /></div>
-                    <div className='zone-left'>
+                    <div className='drag-button' {...listeners} {...attributes}><RiDraggable /><RiDraggable /><RiDraggable /><RiDraggable /></div>
+                    <div className='zone-left-box'>
                         <h1 style={isDark ? { color: 'white' } : {}}>{getTimezoneAbbr(timezones[zone])}</h1>
                         <p>{zone.replace(/-/g, '/')}</p>
                     </div>
-                    <div className='zone-right'>
+                    <div className='zone-right-box'>
                         <Select
                             className={"time-picker"}
                             classNamePrefix="select"
@@ -218,76 +218,106 @@ const TimezoneConverter = () => {
                     value={localTime}
                     onChange={handleSliderChange}
                     onAfterChange={handleSliderChangeComplete}
-                    renderThumb={(props, state) =><div {...props}>{labels[Math.floor(state.value / 180) % 8]}</div>}
-                        />
-                        <div className="labels">
-                            {labels.map((label, index) => (
-                                <span key={index}>{label}</span>
+                    renderThumb={(props, state) => <div {...props}>||</div>}
+                    renderMark={(props) => <span {...props} />}
+                />
+                {labels && (
+                    <div className="labels">
+                        {generateSliderMarks()
+                            .filter((mark, index) => mark % 180 === 0)
+                            .map((mark, index) => (
+                                <div key={mark}>{labels[index]}</div>
                             ))}
-                        </div>
                     </div>
-                );
-            };
-        
-            const shareLink = () => {
-                if (!isSharing) {
-                    setIsSharing(true);
-                } else {
-                    const sharedTimes = timezoneEntries.map(([zone, time]) => `${zone}=${time}`).join('&');
-                    const shareURL = `${window.location.href}?${sharedTimes}&date=${selectedDate.toISOString()}&dark=${isDark}`;
-                    navigator.clipboard.writeText(shareURL);
-                    alert('Link copied to clipboard!');
-                    setIsSharing(false);
-                }
-            };
-        
-            return (
-                <div className={'main-container'} id={isDark && 'dark-main-container'}>
-                    <div className={'upper-row'} id={isDark && 'dark-upper-row'}>
-                        <button onClick={() => setIsDark(!isDark)}>
-                            {isDark ? <MdLightMode /> : <MdDarkMode />}
-                        </button>
-                        <div className="time-converter">
-                            <h1>Time Zone Converter</h1>
-                        </div>
-                        <button onClick={shareLink}>
-                            {isSharing ? <FaLink /> : <FaLink />}
-                        </button>
-                    </div>
-                    <div className={'link-row'} id={isDark && 'dark-link-row'}>
-                        <input className="link-input" placeholder="Add timezone" onKeyDown={(e) => e.key === 'Enter' && addNewTimezone(e.target.value)} />
-                        <div className="date-container">
-                            <DatePicker
-                                className={isDark ? 'date-picker dark-date-picker' : 'date-picker'}
-                                selected={selectedDate}
-                                onChange={handleDateChange}
-                            />
-                            <div className="calendar-box">
-                                <FaCalendarAlt />
-                            </div>
-                        </div>
-                        <div className="filter-container">
-                            <div onClick={reverseTimezones}>
-                                <BiSortAlt2 />
-                            </div>
-                        </div>
-                    </div>
-                    <DndContext
-                        collisionDetection={closestCorners}
-                        onDragEnd={onDragEnd}
-                    >
-                        <SortableContext
-                            items={timezoneEntries.map(([zone]) => zone)}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            {timezoneEntries.map(([zone, time]) => (
-                                <Container key={zone} zone={zone} time={time} />
-                            ))}
-                        </SortableContext>
-                    </DndContext>
+                )}
+
+            </div>
+        );
+    };
+
+    return (
+        <div className="main-container" id={isDark && 'dark-main-container'}>
+            <h1 style={{ margin: '3vh 0', color: 'gray' }}>Time Converter</h1>
+            <div className='upper-row' id={isDark && 'dark-upper-row'}>
+                <Select
+                    className="basic-single"
+                    classNamePrefix="select"
+                    placeholder={"Add Time Zone, City or Town"}
+                    isSearchable={true}
+                    name="timezone"
+                    options={allTimezones}
+                    onChange={addNewTimezone}
+                    styles={{
+                        container: (prev) => ({
+                            ...prev,
+                            width: "30vw",
+                            height: '5vh',
+                        }),
+                        valueContainer: (prev) => ({
+                            ...prev,
+                            width: "30vw",
+                            height: '6vh',
+                            borderRadius: '0.5vh 0 0 0.5vh',
+                            backgroundColor: isDark ? '#2c2f34ef' : 'white',
+                        }),
+                        indicatorsContainer: (prev) => ({
+                            ...prev,
+                            borderRadius: '0 0.5vh 0.5vh 0',
+                            backgroundColor: isDark ? '#2c2f34ef' : 'white',
+                        })
+                    }}
+                />
+                <div className='date-container'>
+                    <DatePicker
+                        className={isDark ? 'date-picker dark-date-picker' : 'date-picker'}
+                        id='date-picker'
+                        selected={selectedDate}
+                        onChange={handleDateChange}
+                        dateFormat="MMMM d, yyyy"
+                    />
+                    <label className='calendar-box' htmlFor="date-picker"
+                        style={isDark ? { backgroundColor: '#2c2f34ef', borderRadius: '0 1vh 1vh 0' } : {}}>
+                        <FaCalendarAlt />
+                    </label>
                 </div>
-            );
-        };
-        
-        export default TimezoneConverter;
-        
+
+                <div className='filter-container'>
+                    <div><FaCalendarMinus /></div>
+                    <div onClick={reverseTimezones}><BiSortAlt2 /></div>
+                    <div onClick={() => setIsSharing(!isSharing)}><FaLink /></div>
+                    <div onClick={() => setIsDark(prev => !prev)}>{isDark ? <MdLightMode /> : <MdDarkMode />}</div>
+                </div>
+            </div>
+
+            {isSharing &&
+                <div className='link-row' id={isDark && 'dark-link-row'}>
+                    <input className='link-input' type="text" value={`https://localhost:5173/?time=&date=`} />
+                    <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                        <span style={{ display: 'flex' }}>
+                            <input type="checkbox" name="time" id="time" />
+                            <label htmlFor='time' >Include Time</label>
+                            <input type="time" name="" id="" />
+                        </span>
+                        <span style={{ display: 'flex' }}>
+                            <input type="checkbox" name="date" id="date" />
+                            <label htmlFor='date' >Include Date</label>
+                            <input type="date" name="" id="" />
+                        </span>
+                    </div>
+                </div>
+            }
+
+            <DndContext collisionDetection={closestCorners} onDragEnd={onDragEnd}>
+                <div className='time-converter'>
+                    <SortableContext items={timezoneEntries.map(([zone]) => zone)} strategy={verticalListSortingStrategy}>
+                        {timezoneEntries.map(([zone, time]) => (
+                            <Container key={zone} zone={zone} time={time} />
+                        ))}
+                    </SortableContext>
+                </div>
+            </DndContext >
+        </div>
+    );
+};
+
+export default TimezoneConverter;

@@ -181,6 +181,7 @@
   width: 2px;
 }
 
+
 .select {
   width: 100px;
 }
@@ -190,6 +191,7 @@
   user-select: none;
 }
 
+
 .drag-button {
   color: rgb(161, 155, 155);
   display: flex;
@@ -197,7 +199,7 @@
   cursor: grab;
 }
 
-.zone-left {
+.zone-left-box {
   color: gray;
   width: 60%;
   height: 80%;
@@ -207,17 +209,17 @@
   justify-content: space-between;
 }
 
-.zone-left h1 {
+.zone-left-box h2 {
   color: rgb(63, 63, 63);
 }
 
-.zone-right {
+.zone-right-box {
   display: flex;
   flex-direction: column;
   height: 80%;
 }
 
-.zone-right span {
+.zone-right-box span {
   display: flex;
   justify-content: space-between;
   color: rgba(158, 147, 147, 0.805);
